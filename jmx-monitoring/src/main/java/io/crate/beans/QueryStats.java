@@ -30,7 +30,9 @@ import org.elasticsearch.common.lucene.BytesRefs;
 import org.elasticsearch.common.settings.Settings;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -60,6 +62,7 @@ public class QueryStats implements QueryStatsMBean {
 
     private final ConcurrentMap<String, Double> metrics;
     private final SQLOperations.Session session;
+
     @VisibleForTesting
     final ConcurrentMap<String, Long> lastQueried;
 
@@ -137,60 +140,14 @@ public class QueryStats implements QueryStatsMBean {
             long lastTs = updateAndGetLastExecutedTsFor(queryUID);
 
             session.bind(UNNAMED, NAME, Arrays.asList(lastTs, queryPattern, lastTs, queryPattern), null);
-            session.execute(UNNAMED, 0, new ResultReceiver() {
-
-                private final CompletableFuture<Boolean> completionFuture = new CompletableFuture<>();
-                private final List<Row> rows = new ArrayList<>();
-
-                @Override
-                public void setNextRow(Row row) {
-                    rows.add(row);
-                }
-
-                @Override
-                public void allFinished(boolean interrupted) {
-                    double value = overall ?
-                        getTotalMetricValue(rows, type.ordinal()) :
-                        getMetricValue(rows, query, type.ordinal());
-                    metrics.put(queryUID, value);
-                    completionFuture.complete(interrupted);
-                }
-
-                @Override
-                public void fail(@Nonnull Throwable t) {
-                    logger.error("Failed to process metric results!", t);
-                    completionFuture.completeExceptionally(t);
-                }
-
-                @Override
-                public CompletableFuture<?> completionFuture() {
-                    return completionFuture;
-                }
-
-                @Override
-                public void batchFinished() {
-                }
-            });
+            MetricReceiver metricReceiver = new MetricReceiver(type, query, overall);
+            metricReceiver.completionFuture.thenApply(metricVal -> metrics.put(queryUID, metricVal));
+            session.execute(UNNAMED, 0, metricReceiver);
             session.sync();
             return metrics.getOrDefault(queryUID, .0);
         } catch (Throwable t) {
             throw SQLExceptions.createSQLActionException(t);
         }
-    }
-
-    @VisibleForTesting
-    double getMetricValue(List<Row> rows, String query, int metricIdx) {
-        return rows.stream()
-            .filter(row -> query.equalsIgnoreCase(BytesRefs.toString(row.get(2))))
-            .mapToDouble(row -> (double) row.get(metricIdx))
-            .findAny().orElse(.0);
-    }
-
-    @VisibleForTesting
-    double getTotalMetricValue(List<Row> rows, int metricIdx) {
-        return rows.stream()
-            .mapToDouble(row -> (double) row.get(metricIdx))
-            .sum();
     }
 
     @VisibleForTesting
@@ -201,5 +158,53 @@ public class QueryStats implements QueryStatsMBean {
             return currentTs;
         }
         return lastTs;
+    }
+
+    private static class MetricReceiver implements ResultReceiver {
+
+        private final CompletableFuture<Double> completionFuture = new CompletableFuture<>();
+        private final MetricType type;
+        private final String query;
+        private final boolean overall;
+
+        private double sum = 0;
+        private Double metricValue = null;
+
+        MetricReceiver(MetricType type, String query, boolean overall) {
+            this.type = type;
+            this.query = query;
+            this.overall = overall;
+        }
+
+        @Override
+        public void setNextRow(Row row) {
+            int metricIdx = type.ordinal();
+            double val = ((double) row.get(metricIdx));
+            sum += val;
+            if (metricValue == null && query.equalsIgnoreCase(BytesRefs.toString(row.get(2)))) {
+                metricValue = val;
+            }
+        }
+
+        @Override
+        public void allFinished(boolean interrupted) {
+            double value = overall ? sum : (metricValue == null ? 0.0 : metricValue);
+            completionFuture.complete(value);
+        }
+
+        @Override
+        public void fail(@Nonnull Throwable t) {
+            // logger.error("Failed to process metric results!", t);
+            completionFuture.completeExceptionally(t);
+        }
+
+        @Override
+        public CompletableFuture<?> completionFuture() {
+            return completionFuture;
+        }
+
+        @Override
+        public void batchFinished() {
+        }
     }
 }
