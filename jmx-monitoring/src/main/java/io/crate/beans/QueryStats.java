@@ -196,9 +196,10 @@ public class QueryStats implements QueryStatsMBean {
     @VisibleForTesting
     long updateAndGetLastExecutedTsFor(String queryUID) {
         long currentTs = System.currentTimeMillis();
-        long lastTs = lastQueried.getOrDefault(queryUID, currentTs);
-
-        lastQueried.put(queryUID, currentTs);
+        Long lastTs = lastQueried.put(queryUID, currentTs);
+        if (lastTs == null) {
+            return currentTs;
+        }
         return lastTs;
     }
 }
