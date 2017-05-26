@@ -753,6 +753,13 @@ public class CreateAlterTableStatementAnalyzerTest extends CrateDummyClusterServ
     }
 
     @Test
+    public void testChangeTranslogDurability() throws Exception {
+        AlterTableAnalyzedStatement analysis =
+            e.analyze("alter table users set (\"translog.durability\"='REQUEST')");
+        assertThat(analysis.tableParameter().settings().get(TableParameterInfo.TRANSLOG_DURABILITY), is("REQUEST"));
+    }
+
+    @Test
     public void testRoutingAllocationEnable() throws Exception {
         AlterTableAnalyzedStatement analysis =
             e.analyze("alter table users set (\"routing.allocation.enable\"=\"none\")");
