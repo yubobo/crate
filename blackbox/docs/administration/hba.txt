@@ -120,6 +120,10 @@ method.
 
    For general help managing users, see :ref:`administration_user_management`.
 
+.. NOTE::
+
+   For general help managing users, see :ref:`administration_user_management`.
+
 Authenticating as a Superuser
 =============================
 
