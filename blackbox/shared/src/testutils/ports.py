@@ -33,11 +33,12 @@ class PortPool(object):
         sock.bind((addr, port))
         port = sock.getsockname()[1]
         try:
-            sock.shutdown(socket.SHUT_RDWR)
+            sock.shutdown()
         except:
             # ok, at least we know that the socket is not connected
             pass
-        sock.close()
+        finally:
+            sock.close()
         return port
 
     def random_available_port(self, addr):
