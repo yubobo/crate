@@ -372,11 +372,11 @@ public class LuceneQueryBuilder {
                 BooleanQuery.Builder query = new BooleanQuery.Builder();
                 query.setMinimumNumberShouldMatch(1);
                 query.add(
-                    fieldType.rangeQuery(value, null, false, false),
+                    fieldType.rangeQuery(value, null, false, false, context.queryShardContext),
                     BooleanClause.Occur.SHOULD
                 );
                 query.add(
-                    fieldType.rangeQuery(null, value, false, false),
+                    fieldType.rangeQuery(null, value, false, false, context.queryShardContext),
                     BooleanClause.Occur.SHOULD
                 );
                 return query.build();
@@ -560,7 +560,7 @@ public class LuceneQueryBuilder {
                         return null;
                     }
                     if (reference.isNullable()) {
-                        builder.add(fieldType.rangeQuery(null, null, true, true), BooleanClause.Occur.MUST);
+                        builder.add(fieldType.rangeQuery(null, null, true, true, context.queryShardContext), BooleanClause.Occur.MUST);
                     }
                 }
                 if (ctx.hasStrictThreeValuedLogicFunction) {
@@ -597,7 +597,7 @@ public class LuceneQueryBuilder {
                     // is null on an unknown column is always true
                     return Queries.newMatchAllQuery();
                 }
-                return Queries.not(fieldType.rangeQuery(null, null, true, true));
+                return Queries.not(fieldType.rangeQuery(null, null, true, true, context.queryShardContext));
             }
         }
 
@@ -682,8 +682,8 @@ public class LuceneQueryBuilder {
                 return rangeQuery.toQuery(
                     arrayReference,
                     literal.value(),
-                    context::getFieldTypeOrNull
-                );
+                    context::getFieldTypeOrNull,
+                    context.queryShardContext);
             }
 
             @Override
@@ -693,7 +693,7 @@ public class LuceneQueryBuilder {
                 booleanQuery.setMinimumNumberShouldMatch(1);
                 for (Object value : toIterable(arrayLiteral.value())) {
                     booleanQuery.add(
-                        inverseRangeQuery.toQuery(reference, value, context::getFieldTypeOrNull),
+                        inverseRangeQuery.toQuery(reference, value, context::getFieldTypeOrNull, context.queryShardContext),
                         BooleanClause.Occur.SHOULD);
                 }
                 return booleanQuery.build();
@@ -754,10 +754,10 @@ public class LuceneQueryBuilder {
                 if (tuple == null) {
                     return null;
                 }
-                return toQuery(tuple.v1(), tuple.v2().value(), context::getFieldTypeOrNull);
+                return toQuery(tuple.v1(), tuple.v2().value(), context::getFieldTypeOrNull, context.queryShardContext);
             }
 
-            public Query toQuery(Reference reference, Object value, FieldTypeLookup fieldTypeLookup) {
+            public Query toQuery(Reference reference, Object value, FieldTypeLookup fieldTypeLookup, QueryShardContext queryShardContext) {
                 String columnName = reference.ident().columnIdent().fqn();
                 MappedFieldType fieldType = fieldTypeLookup.get(columnName);
                 if (fieldType == null) {
@@ -766,7 +766,7 @@ public class LuceneQueryBuilder {
                 }
                 Tuple<?, ?> bounds = boundsFunction.apply(value);
                 assert bounds != null : "bounds must not be null";
-                return fieldType.rangeQuery(bounds.v1(), bounds.v2(), includeLower, includeUpper);
+                return fieldType.rangeQuery(bounds.v1(), bounds.v2(), includeLower, includeUpper, queryShardContext);
             }
         }
 
