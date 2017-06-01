@@ -1,0 +1,43 @@
+.. _install_tarball:
+
+===================
+Install Via Tarball
+===================
+
+.. highlight:: sh
+
+After downloading the latest stable version of CrateDB from
+`crate.io/download/ <https://crate.io/download/>`_
+the package needs to be unpacked::
+
+   sh$ tar zxf crate-*.tar.gz
+   sh$ cd crate-*
+
+Once unpacked CrateDB can be started in the foreground like this::
+
+   sh$ ./bin/crate
+
+In order to start in the background add the ``-d`` option. If started in the
+foreground you can use ``Control-C`` to stop the process again.
+
+
+The CrateDB Shell (Crash) is shipped with the tarball distribution.
+You can start the shell using the ``crash`` command::
+
+  sh$ ./bin/crash
+
+The CrateDB distribution also comes with a web based administration
+interface. It is served on port ``4200`` and you can access it with
+your browser once CrateDB is started::
+
+  http://host1.example.com:4200/
+
+.. note::
+
+   The admin interface runs on each node where CrateDB is installed.
+
+.. note::
+
+   If the previous URL is accessed via libraries (eg. cURL), or via offline
+   browsers (eg. wget) the request will be handled by the CrateDB Rest API,
+   and the response will be JSON.

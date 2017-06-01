@@ -1,0 +1,65 @@
+.. _installation:
+
+============
+Installation
+============
+
+Installation instructions for CrateDB.
+
+Prerequisites
+=============
+
+CrateDB requires `Java 8`_. We recommend using `Oracle's Java`_ on OSX and
+OpenJDK_ on Linux Systems.
+The same JVM version must be used on all CrateDB nodes.
+
+We recommend installing `Java 8`_ update 20 or later.
+
+Local Install
+=============
+
+.. toctree::
+   :maxdepth: 2
+
+   local/linux
+   local/mac
+   local/windows
+   local/tarball
+   local/packages
+
+
+Containers
+==========
+
+.. toctree::
+   :maxdepth: 2
+
+   containers/containership
+   containers/coreos
+   containers/docker
+   containers/docker_cloud
+
+Cloud
+=====
+
+.. toctree::
+   :maxdepth: 2
+
+   cloud/aws
+   cloud/azure
+   cloud/softlayer
+   cloud/packet
+
+See Also
+========
+
+- :doc:`Configuring CrateDB <../configuration>`
+
+- :doc:`Get started with CrateDB <../hello>`
+
+- `Multi Node Setup`_
+
+.. _`Multi Node Setup`: https://crate.io/docs/scale/multi_node_setup/
+.. _`Java 8`: http://www.oracle.com/technetwork/java/javase/downloads/index.html
+.. _`Oracle's Java`: http://www.java.com/en/download/help/mac_install.xml
+.. _OpenJDK: http://openjdk.java.net/projects/jdk8/

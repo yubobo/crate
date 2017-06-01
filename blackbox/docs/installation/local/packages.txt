@@ -1,0 +1,14 @@
+Install CrateDB for Production
+==============================
+
+We provide distributions for **RHEL/YUM** based systems, **Ubuntu**, **Debian**
+and **Arch Linux**.
+
+You can find instruction how to install CrateDB for production on the Download_
+page.
+
+In case your distribution is missing feel free to `contact us
+<https://crate.io/about/contact/>`_. We're happy to create and maintain
+additional packages if we see enough interest.
+
+.. _Download: https://crate.io/download/

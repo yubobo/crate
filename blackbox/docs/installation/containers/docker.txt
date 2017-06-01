@@ -1,0 +1,18 @@
+Install Using Docker
+====================
+
+`Docker`_ is a lightweigt runtime to run distributed applications in a
+sandboxed container. We provide a Docker image for CrateDB for easy
+installation::
+
+    sh$ docker pull crate
+    sh$ docker run -d -p 4200:4200 -p 4300:4300 crate crate -Ccluster.name=my_cluster
+
+The images are hosted on the `Docker Hub Registry`_. There is additional
+information on how to run CrateDB in a Docker container on the `docker-crate`_
+Github repository.
+
+.. _Docker: https://www.docker.com/
+.. _`Docker Hub Registry`: https://registry.hub.docker.com/u/crate/crate/
+.. _`docker-crate`: https://github.com/crate/docker-crate/
+

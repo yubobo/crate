@@ -2,7 +2,7 @@
 First Steps
 ===========
 
-- In order to get CrateDB up and running take a look at the :doc:`installation`.
+- In order to get CrateDB up and running take a look at the :ref:`installation`.
 
 - If you are new to CrateDB, it is probably the best to say :doc:`hello`.
 
@@ -16,7 +16,7 @@ Contents
 
    architecture/index
    release_notes/index
-   installation
+   installation/index
    configuration
    cli
    hello

@@ -5,7 +5,7 @@
 CrateDB CLI
 ===========
 
-After downloading and extracting the tarball (see :ref:`install_targz`) you
+After downloading and extracting the tarball (see :ref:`install_tarball`) you
 will be able to invoke the CrateDB executable in the ``bin`` directory. The
 excutable is named ``crate``.
 
